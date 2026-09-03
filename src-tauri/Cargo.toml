@@ -1,0 +1,56 @@
+[package]
+name = "acme-rc"
+version = "1.1.4"
+description = "ACME Relay Client — Modern SSL/TLS Certificate Manager with DNS-01 Challenge"
+
+authors = ["ACME.rc Team"]
+edition = "2021"
+license = "MIT"
+
+[lib]
+name = "acme_rc_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-clipboard-manager = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+instant-acme = "0.8"
+
+rcgen = { version = "0.13", features = ["pem", "ring"] }
+pkcs8 = { version = "0.10", features = ["std", "pem"] }
+rsa = { version = "0.9", features = ["pem", "std"] }
+rand = "0.8"
+p256 = { version = "0.13", features = ["pem", "pkcs8", "ecdsa"] }
+
+p384 = { version = "0.13", features = ["pem", "pkcs8", "ecdsa"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+hickory-resolver = { version = "0.24", default-features = false, features = ["tokio-runtime", "system-config"] }
+chrono = { version = "0.4", features = ["serde"] }
+base64 = "0.22"
+sha2 = "0.10"
+dirs = "6.0"
+log = "0.4"
+open = "5.3"
+ring = "0.17"
+rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
+rfd = "0.15"
+
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+jsonwebtoken = "9.3"
+x509-parser = "0.16"
+aes-gcm = "0.10"
+
+
+
+
+
+
+

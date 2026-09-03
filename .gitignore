@@ -1,0 +1,121 @@
+# ==============================================================================
+# ACME.rc — Git Ignore Configuration
+# Comprehensive protection against credentials, certificates, build artifacts & databases
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Credentials, Secrets & Service Accounts
+# ------------------------------------------------------------------------------
+# Google Cloud Service Account JSON keys & private keys
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!jsconfig.json
+!.vscode/extensions.json
+!src-tauri/tauri.conf.json
+!src-tauri/capabilities/*.json
+!src-tauri/gen/schemas/*.json
+
+# Environment variables & local secrets
+.env
+.env.*
+*.env
+*.local
+
+# SSH Keys & credentials
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+*.id_rsa
+*.id_ed25519
+
+# ACME.rc Vault Salt & Encryption keys
+.vault.salt
+*.salt
+
+# ------------------------------------------------------------------------------
+# 2. Generated SSL/TLS Certificates, Keys & Artifacts
+# ------------------------------------------------------------------------------
+certificates/
+src-tauri/certificates/
+*.pem
+*.key
+*.crt
+*.cer
+*.der
+*.pfx
+*.p12
+*.csr
+README_DEPLOYMENT.txt
+
+# ------------------------------------------------------------------------------
+# 3. Databases & Local Data
+# ------------------------------------------------------------------------------
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+*.sqlite
+*.sqlite3
+acme_rc.db
+acme_rc.db*
+
+# ------------------------------------------------------------------------------
+# 4. Build Artifacts & Packages
+# ------------------------------------------------------------------------------
+# Rust / Cargo
+/target/
+src-tauri/target/
+Cargo.lock
+.build_counter
+src-tauri/.build_counter
+
+# Linux / Tauri Packages
+*.deb
+*.rpm
+*.AppImage
+*.tar.gz
+*.tgz
+*.zip
+
+# Node / Frontend
+node_modules/
+dist/
+dist-ssr/
+
+# ------------------------------------------------------------------------------
+# 5. Operating System & Editor Files
+# ------------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*~
+*.bak
+
+# ------------------------------------------------------------------------------
+# 6. Logs
+# ------------------------------------------------------------------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*

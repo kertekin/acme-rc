@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ACME.rc — ACME Relay Client</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="dark-theme">
+  <div id="app" class="app-container">
+    
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="brand-group">
+        <div class="logo-badge">
+          <svg class="icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">ACME.rc <span class="badge-version">v1.1</span></div>
+          <div class="brand-subtitle">ACME Relay Client — DNS-01 Certificate Engine</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Profile Selector -->
+        <div class="profile-manager">
+          <span class="profile-label">Profile:</span>
+          <select id="profile-select" class="select-input" style="min-width: 170px;">
+            <option value="">+ New Profile...</option>
+          </select>
+          <button type="button" id="btn-save-profile" class="btn btn-secondary btn-sm" title="Save current settings to profile">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/>
+              <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Save
+          </button>
+          <button type="button" id="btn-delete-profile" class="btn btn-ghost btn-sm btn-icon-only text-danger" title="Delete selected profile" style="display: none;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+          </button>
+        </div>
+
+
+        <button id="btn-open-history" class="btn btn-secondary btn-sm" title="View & manage active certificates and domains">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          Active Domains
+        </button>
+
+
+        <button id="btn-open-settings" class="btn btn-ghost btn-sm btn-icon-only" title="Global Application Settings">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button id="btn-toggle-theme" class="btn btn-ghost btn-sm btn-icon-only" title="Toggle Light/Dark Theme">
+          <span id="theme-icon-dark" style="display: none;">☀️</span>
+          <span id="theme-icon-light">🌙</span>
+        </button>
+
+        <!-- About Button -->
+        <button id="btn-open-about" class="btn btn-ghost btn-sm btn-icon-only" title="About ACME.rc">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+
+
+    <!-- Main Workspace Layout -->
+    <main class="main-workspace">
+      
+      <!-- Left Config & Challenge Column -->
+      <section class="left-panel">
+        
+        <!-- Step Progress Indicator -->
+        <div class="stepper-bar">
+          <div id="step-tab-1" class="step-tab active">
+            <span class="step-num">1</span>
+            <span class="step-label">CA & Auth</span>
+          </div>
+          <div class="step-divider"></div>
+          <div id="step-tab-2" class="step-tab">
+            <span class="step-num">2</span>
+            <span class="step-label">Domains & Keys</span>
+          </div>
+          <div class="step-divider"></div>
+          <div id="step-tab-3" class="step-tab">
+            <span class="step-num">3</span>
+            <span class="step-label">DNS Challenge</span>
+          </div>
+        </div>
+
+        <form id="cert-form" class="flow-container">
+          
+          <!-- STEP 1: Certificate Authority Selection -->
+          <div id="step-content-1" class="step-card">
+            <div class="card-header">
+              <h2 class="card-title">Certificate Authority (CA)</h2>
+              <span class="card-desc">Select your preferred ACME provider and environment</span>
+            </div>
+
+            <div class="card-body">
+              <div class="form-grid">
+              
+              <div class="form-group half-width">
+                <label for="ca-select">ACME Provider</label>
+                <div class="select-wrapper">
+                  <select id="ca-select" class="select-input">
+                    <option value="GoogleTrustServices" selected>Google Trust Services (Google Public CA - Default)</option>
+                    <option value="LetsEncrypt">Let's Encrypt (Universal - No EAB Required)</option>
+                    <option value="ZeroSSL">ZeroSSL</option>
+                    <option value="Custom">Custom Private ACME Server (Step-CA / Pebble)</option>
+                  </select>
+                </div>
+              </div>
+
+
+              <!-- Environment Toggle -->
+              <div class="form-group half-width env-toggle-group">
+                <label>Environment Mode</label>
+                <div class="env-toggle-pills">
+                  <button type="button" id="env-prod" class="pill-btn active">
+                    <span class="dot dot-success"></span> Production (Trusted)
+                  </button>
+                  <button type="button" id="env-staging" class="pill-btn">
+                    <span class="dot dot-warning"></span> Staging / Test Sandbox (No Rate Limit)
+                  </button>
+                </div>
+              </div>
+
+              <!-- Custom CA URL (Conditional) -->
+              <div id="custom-ca-group" class="form-group full-width" style="display: none;">
+                <label for="custom-ca-url">Custom Directory URL</label>
+                <input type="url" id="custom-ca-url" class="text-input" placeholder="https://acme.example.com/acme/default/directory" />
+              </div>
+
+              <!-- Contact Email -->
+              <div class="form-group full-width">
+                <label for="account-email">Account Contact Email</label>
+                <input type="email" id="account-email" class="text-input" placeholder="admin@yourdomain.com" />
+                <span class="field-hint">Used by CA for expiration and critical security notices.</span>
+              </div>
+
+              <!-- EAB Section (Required for Google, optional for ZeroSSL) -->
+              <div id="eab-section" class="eab-box full-width">
+                <div class="eab-header">
+                  <div class="eab-title">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    External Account Binding (EAB)
+                  </div>
+                  <span id="eab-required-badge" class="badge badge-primary">Required for Google CA</span>
+                </div>
+
+                <p class="eab-desc" id="eab-hint-text">
+                  Provide your EAB credentials manually or fetch them automatically using your API key / Service Account.
+                </p>
+
+                <!-- EAB Input Mode Switcher -->
+                <div class="eab-tabs-row">
+                  <button type="button" id="tab-eab-manual" class="eab-tab-btn active">Manual Keys</button>
+                  <button type="button" id="tab-eab-google" class="eab-tab-btn" style="display: none;">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="17 8 12 3 7 8"/>
+                      <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    Import GCP JSON
+                  </button>
+                  <button type="button" id="tab-eab-zerossl" class="eab-tab-btn" style="display: none;">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                    </svg>
+                    ZeroSSL API Key
+                  </button>
+                </div>
+
+                <!-- Google Service Account JSON Panel -->
+                <div id="eab-panel-google" class="eab-subpanel" style="display: none;">
+                  <div class="subpanel-header">
+                    <span class="subpanel-title">Google Cloud Service Account JSON</span>
+                    <span class="subpanel-desc">Load your GCP Service Account JSON key to automatically generate EAB keys via Google Public CA API.</span>
+                  </div>
+                  <div class="dir-picker-wrapper" style="margin-bottom: 8px;">
+                    <input type="text" id="gcp-json-filename" class="text-input" placeholder="No file selected..." readonly />
+                    <button type="button" id="btn-browse-gcp-json" class="btn btn-secondary btn-sm">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                      </svg>
+                      Select .json
+                    </button>
+                  </div>
+                  <textarea id="gcp-json-content" class="text-input font-mono" style="font-size: 11px; height: 80px; resize: vertical;" placeholder='Or paste GCP Service Account JSON here: { "project_id": "...", "client_email": "...", "private_key": "..." }'></textarea>
+                  <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+                    <button type="button" id="btn-fetch-google-eab" class="btn btn-primary btn-sm">
+                      Fetch EAB from Google Cloud
+                    </button>
+                  </div>
+                </div>
+
+                <!-- ZeroSSL API Key Panel -->
+                <div id="eab-panel-zerossl" class="eab-subpanel" style="display: none;">
+                  <div class="subpanel-header">
+                    <span class="subpanel-title">ZeroSSL API Access Key</span>
+                    <span class="subpanel-desc">Enter your ZeroSSL API Access Key (Developer section) to fetch your ACME EAB credentials.</span>
+                  </div>
+                  <div style="display: flex; gap: 8px;">
+                    <input type="password" id="zerossl-api-key-input" class="text-input font-mono" placeholder="e.g. 74a9b24f5c9e2..." />
+                    <button type="button" id="btn-fetch-zerossl-eab" class="btn btn-primary btn-sm" style="white-space: nowrap;">
+                      Fetch from ZeroSSL
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Manual EAB Key Fields (Always visible or auto-populated) -->
+                <div class="eab-manual-fields">
+                  <div class="form-group full-width">
+                    <label for="eab-key-id">EAB Key ID (KID)</label>
+                    <input type="text" id="eab-key-id" class="text-input font-mono" placeholder="e.g. 5b98f2c3d1..." style="width: 100%;" />
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="eab-hmac-key">EAB HMAC Key (Base64URL)</label>
+                    <div class="password-wrapper" style="width: 100%;">
+                      <input type="password" id="eab-hmac-key" class="text-input font-mono" placeholder="e.g. jK9_xL21w4Q..." style="flex: 1;" />
+                      <button type="button" id="toggle-hmac" class="btn-toggle-pwd" title="Toggle visibility">
+                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                          <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+
+            </div>
+            </div>
+
+            <div class="card-footer">
+              <div></div>
+              <button type="button" id="btn-next-to-step-2" class="btn btn-primary">
+                Next: Domains & Keys
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 2: Domains & Cryptographic Keys -->
+          <div id="step-content-2" class="step-card" style="display: none;">
+            <div class="card-header">
+              <h2 class="card-title">Domain & Key Configuration</h2>
+              <span class="card-desc">Configure your domain names and private key generation settings</span>
+            </div>
+
+            <div class="card-body">
+              <div class="form-grid">
+              
+              <!-- Primary Domain -->
+              <div class="form-group full-width">
+                <label for="domain-input">Primary Domain Name</label>
+                <div class="domain-input-wrapper">
+                  <input type="text" id="domain-input" class="text-input text-input-lg font-mono" placeholder="example.com" required />
+                </div>
+                <span class="field-hint">Enter your root or subdomain (e.g. <code>example.com</code> or <code>api.example.com</code>)</span>
+              </div>
+
+              <!-- Domain Options Checkboxes -->
+              <div class="form-group full-width domain-toggles-box">
+                <label class="checkbox-container">
+                  <input type="checkbox" id="include-www" checked />
+                  <span class="custom-checkbox"></span>
+                  <div class="checkbox-label-group">
+                    <span class="chk-title">Auto-include <code>www.domain.com</code></span>
+                    <span class="chk-desc">Adds the www subdomain to Subject Alternative Names (SANs)</span>
+                  </div>
+                </label>
+
+                <label class="checkbox-container" id="wildcard-toggle-container">
+                  <input type="checkbox" id="include-wildcard" checked />
+                  <span class="custom-checkbox"></span>
+                  <div class="checkbox-label-group">
+                    <span class="chk-title">Wildcard Certificate (<code>*.domain.com</code>)</span>
+                    <span class="chk-desc" id="wildcard-toggle-desc">Covers all subdomains under this domain (requires DNS-01 verification)</span>
+                  </div>
+                </label>
+
+
+              </div>
+
+              <!-- Key Algorithm -->
+              <div class="form-group half-width">
+                <label for="key-type-select">Private Key Algorithm</label>
+                <select id="key-type-select" class="select-input">
+                  <option value="ECDSA_P256" selected>ECDSA P-256 (Modern, Fast — Nginx, Apache & Cloud)</option>
+                  <option value="ECDSA_P384">ECDSA P-384 (High-Security ECC — Modern Servers)</option>
+                  <option value="RSA_2048">RSA 2048-bit (Universal — Plesk, cPanel & Standard Web)</option>
+                  <option value="RSA_4096">RSA 4096-bit (Maximum RSA Security — High-Grade Hosting)</option>
+                </select>
+              </div>
+
+              <!-- Server / Control Panel Preset -->
+              <div class="form-group half-width">
+                <label for="server-preset-select">Target Panel / Server Preset</label>
+                <select id="server-preset-select" class="select-input">
+                  <option value="all" selected>All Panels (Organized: plesk/, cpanel/, nginx_apache/)</option>
+                  <option value="plesk">Plesk Panel (Requires RSA for 100% web & mail support)</option>
+                  <option value="cpanel">cPanel / WHM (Requires RSA for cPanel mail & webmail)</option>
+                  <option value="nginx">Nginx / Apache / Docker (.pem standard — Fast ECC/RSA)</option>
+                </select>
+              </div>
+
+
+              <!-- DNS Provider & Automation -->
+              <div class="form-group half-width">
+                <label for="dns-provider-select">DNS Automation / Provider</label>
+                <select id="dns-provider-select" class="select-input">
+                  <option value="manual" selected>Manual (Enter TXT records by hand)</option>
+                  <option value="plesk">Plesk REST API (Your own Plesk server)</option>
+                  <option value="cloudflare">Cloudflare DNS API (Automatic)</option>
+                  <option value="hetzner">Hetzner DNS API (Automatic)</option>
+                  <option value="digitalocean">DigitalOcean DNS API (Automatic)</option>
+                  <option value="webhook">Custom Webhook / Generic API</option>
+                </select>
+              </div>
+
+              <!-- DNS Server URL Input (For Plesk Server URL or Webhook Add URL) -->
+              <div id="dns-server-url-group" class="form-group half-width" style="display: none;">
+                <label for="dns-server-url" id="dns-server-url-label">Plesk Server URL</label>
+                <input type="text" id="dns-server-url" class="text-input font-mono" placeholder="https://panel.yourdomain.com:8443" />
+              </div>
+
+              <!-- DNS API Token Input (Conditional) -->
+              <div id="dns-token-group" class="form-group half-width" style="display: none;">
+                <label for="dns-api-token" id="dns-token-label">API Key / Token</label>
+                <div class="password-wrapper">
+                  <input type="password" id="dns-api-token" class="text-input font-mono" placeholder="Enter API Key / Token..." />
+                  <button type="button" id="toggle-dns-token" class="btn-toggle-pwd" title="Toggle visibility">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- DNS Custom Webhook Delete URL (Optional) -->
+              <div id="dns-custom-config-group" class="form-group half-width" style="display: none;">
+                <label for="dns-custom-config" id="dns-custom-config-label">Webhook Delete URL (Optional Cleanup)</label>
+                <input type="text" id="dns-custom-config" class="text-input font-mono" placeholder="https://api.yourdomain.com/dns/delete" />
+              </div>
+
+              <!-- Output Directory -->
+              <div class="form-group half-width">
+                <label for="output-dir-input">Output / Backup Directory</label>
+                <div class="dir-picker-wrapper">
+                  <input type="text" id="output-dir-input" class="text-input" placeholder="Default: ./certificates/{domain}_{time}" />
+                  <button type="button" id="btn-browse-dir" class="btn btn-secondary btn-sm" title="Select custom output directory">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    Browse
+                  </button>
+                </div>
+              </div>
+
+              <!-- Auto-Deployment Mode -->
+              <div class="form-group half-width">
+                <label for="deploy-target-select">Auto-Deployment Target</label>
+                <select id="deploy-target-select" class="select-input">
+                  <option value="none" selected>None (Download to Output Directory only)</option>
+                  <option value="local_nginx">Local Nginx Server (/etc/nginx/ssl/{domain}/)</option>
+                  <option value="local_apache">Local Apache Server (/etc/ssl/certs/{domain}/)</option>
+                  <option value="local_plesk">Local Plesk Panel (/var/www/vhosts/{domain}/certificates/)</option>
+                  <option value="local_custom">Custom Local Path & Reload Hook</option>
+                  <option value="remote_ssh">Remote Server via SSH / SFTP</option>
+                </select>
+              </div>
+
+              <!-- Custom Target Path Input (Conditional) -->
+              <div id="deploy-custom-path-group" class="form-group half-width" style="display: none;">
+                <label for="deploy-custom-path" id="deploy-custom-path-label">Target Directory Path</label>
+                <input type="text" id="deploy-custom-path" class="text-input font-mono" placeholder="/etc/nginx/ssl/{domain}" />
+              </div>
+
+              <!-- Post-Deploy Reload Command (Conditional) -->
+              <div id="deploy-hook-cmd-group" class="form-group half-width" style="display: none;">
+                <label for="deploy-hook-cmd">Post-Deploy Reload Hook (Optional)</label>
+                <input type="text" id="deploy-hook-cmd" class="text-input font-mono" placeholder="systemctl reload nginx" />
+              </div>
+
+              <!-- SSH Deploy Config Group (Conditional) -->
+              <div id="deploy-ssh-group" class="form-group full-width" style="display: none;">
+                <div class="form-row-2">
+                  <div class="form-group half-width">
+                    <label for="deploy-ssh-host">SSH Host & Port</label>
+                    <div style="display: flex; gap: 8px;">
+                      <input type="text" id="deploy-ssh-host" class="text-input font-mono" placeholder="192.168.1.100 or server.com" style="flex: 1;" />
+                      <input type="number" id="deploy-ssh-port" class="text-input font-mono" placeholder="22" value="22" style="width: 80px;" />
+                    </div>
+                  </div>
+                  <div class="form-group half-width">
+                    <label for="deploy-ssh-user">SSH Username</label>
+                    <input type="text" id="deploy-ssh-user" class="text-input font-mono" placeholder="root" value="root" />
+                  </div>
+                </div>
+                <div class="form-row-2" style="margin-top: 10px;">
+                  <div class="form-group half-width">
+                    <label for="deploy-ssh-key">SSH Private Key (Optional)</label>
+                    <div style="display: flex; gap: 8px;">
+                      <input type="text" id="deploy-ssh-key" class="text-input font-mono" placeholder="~/.ssh/id_rsa or key.pem" style="flex: 1;" />
+                      <button type="button" id="btn-browse-ssh-key" class="btn btn-secondary btn-sm" title="Select SSH Private Key File">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        Browse
+                      </button>
+                    </div>
+                  </div>
+                  <div class="form-group half-width">
+                    <label for="deploy-ssh-pass">SSH Password (If using password login)</label>
+                    <div class="password-wrapper">
+                      <input type="password" id="deploy-ssh-pass" class="text-input font-mono" placeholder="Enter SSH Password..." />
+                      <button type="button" id="toggle-ssh-pass" class="btn-toggle-pwd" title="Toggle password visibility">
+                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                          <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <span class="field-hint">Authenticate using an SSH Private Key or an SSH Password (passwords are safely AES-256 encrypted).</span>
+              </div>
+
+
+
+            </div>
+            </div>
+
+            <div class="card-footer">
+              <button type="button" id="btn-back-to-step-1" class="btn btn-ghost">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="15 18 9 12 15 6"/>
+                </svg>
+                Back
+              </button>
+
+              <button type="submit" id="btn-start-order" class="btn btn-primary btn-glow">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+                Generate DNS Challenges
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 3: DNS Challenge Records & Propagation Verification -->
+          <div id="step-content-3" class="step-card" style="display: none;">
+            <div class="card-header">
+              <div class="header-with-badge">
+                <h2 class="card-title">DNS-01 Challenge Records</h2>
+                <span id="step-3-badge" class="badge badge-accent">Action Required</span>
+              </div>
+              <span id="step-3-desc" class="card-desc">Add the following TXT record(s) to your DNS management panel (Cloudflare, GoDaddy, AWS Route53, Namecheap, etc.)</span>
+            </div>
+
+            <div class="card-body">
+              <!-- Auto-Pilot Banner for Automated DNS APIs (with Integrated Propagation Cards) -->
+              <div id="autopilot-banner" class="autopilot-banner" style="display: none;">
+                <div class="autopilot-main-row">
+                  <div class="autopilot-icon">⚡</div>
+                  <div class="autopilot-info">
+                    <div class="autopilot-title">Auto-Pilot Active: <span id="autopilot-provider-name">Cloudflare DNS API</span></div>
+                    <div class="autopilot-desc" id="autopilot-status-text">TXT records provisioned automatically. Monitoring live DNS propagation across public resolvers...</div>
+                  </div>
+                  <div class="autopilot-actions">
+                    <span id="autopilot-countdown" class="badge badge-primary">Auto-verifying in 5s...</span>
+                    <button type="button" id="btn-cancel-autopilot" class="btn btn-ghost btn-sm" style="font-size: 11px;">Pause Auto-Pilot</button>
+                    <button type="button" id="btn-autopilot-now" class="btn btn-secondary btn-sm" style="font-size: 11px;">Issue Immediately</button>
+                  </div>
+                </div>
+
+                <!-- Live Resolver Grid Inside Auto-Pilot -->
+                <div id="propagation-results" class="propagation-resolvers-grid">
+                  <div class="resolver-item" id="res-cloudflare">
+                    <div class="res-name">Cloudflare (1.1.1.1)</div>
+                    <div class="res-status status-pending">Not Checked</div>
+                  </div>
+                  <div class="resolver-item" id="res-google">
+                    <div class="res-name">Google (8.8.8.8)</div>
+                    <div class="res-status status-pending">Not Checked</div>
+                  </div>
+                  <div class="resolver-item" id="res-quad9">
+                    <div class="res-name">Quad9 (9.9.9.9)</div>
+                    <div class="res-status status-pending">Not Checked</div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="challenges-list" class="challenges-container">
+                <!-- Dynamically populated challenge cards -->
+              </div>
+
+
+              <!-- Manual DNS Propagation Checker Section (Used when Auto-Pilot is paused or in manual mode) -->
+              <div id="manual-propagation-box" class="propagation-box" style="display: none;">
+                <div class="prop-header">
+                  <div class="prop-title">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="2" y1="12" x2="22" y2="12"/>
+                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"/>
+                    </svg>
+                    Manual DNS Propagation Checker
+                  </div>
+                  <button type="button" id="btn-check-propagation" class="btn btn-secondary btn-sm">
+                    <svg id="prop-spinner" class="icon-spin" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                      <line x1="12" y1="2" x2="12" y2="6"/>
+                      <line x1="12" y1="18" x2="12" y2="22"/>
+                      <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/>
+                      <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/>
+                      <line x1="2" y1="12" x2="6" y2="12"/>
+                      <line x1="18" y1="12" x2="22" y2="12"/>
+                      <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/>
+                      <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/>
+                    </svg>
+                    Check Propagation Now
+                  </button>
+                </div>
+                <div id="manual-propagation-host"></div>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <button type="button" id="btn-back-to-step-2" class="btn btn-ghost">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="15 18 9 12 15 6"/>
+                </svg>
+                Back
+              </button>
+
+              <button type="button" id="btn-verify-finalize" class="btn btn-success btn-glow">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Verify DNS & Issue Certificate
+              </button>
+            </div>
+          </div>
+
+        </form>
+      </section>
+
+      <!-- Terminal Height Resizer Bar -->
+      <div id="terminal-resizer" class="terminal-resizer" title="Drag to adjust console height">
+        <div class="resizer-handle"></div>
+      </div>
+
+      <!-- Right Panel: Live Terminal Console -->
+      <section class="right-panel">
+        <div class="terminal-card" style="position: relative;">
+          <div class="terminal-header">
+            <div class="terminal-dots">
+              <span class="dot dot-red"></span>
+              <span class="dot dot-yellow"></span>
+              <span class="dot dot-green"></span>
+            </div>
+            <div class="terminal-title">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="4 17 10 11 4 5"/>
+                <line x1="12" y1="19" x2="20" y2="19"/>
+              </svg>
+              Live Execution Log
+            </div>
+            <div class="terminal-actions">
+              <!-- Auto-Scroll Toggle Button -->
+              <button type="button" id="btn-toggle-autoscroll" class="btn-terminal-autoscroll active" title="Toggle Auto-Scroll">
+                <span class="dot-autoscroll"></span> Auto-Scroll
+              </button>
+
+              <button id="btn-copy-logs" class="btn-icon" title="Copy all logs">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+              </button>
+              <button type="button" id="btn-clear-logs" class="btn-icon" title="Clear console">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>
+              <button type="button" id="btn-toggle-terminal" class="btn-icon" title="Minimize / Expand Terminal">
+                <svg id="icon-terminal-toggle" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div id="terminal-body" class="terminal-body">
+            <div class="log-line log-system">
+              <span class="log-time">[System]</span>
+              <span class="log-msg">ACME.rc ready. Select your CA and domain to initiate certificate workflow.</span>
+            </div>
+          </div>
+
+          <!-- Quick Scroll to Bottom Floating Button -->
+          <button type="button" id="btn-scroll-bottom" class="btn-scroll-bottom" style="display: none;" title="Scroll to newest log">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+            Latest
+          </button>
+        </div>
+      </section>
+
+
+    </main>
+
+    <!-- SUCCESS MODAL -->
+    <div id="modal-success" class="modal-overlay" style="display: none;">
+      <div class="modal-card modal-success-card">
+        <div class="modal-icon-badge success-pulse">
+          <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+
+        <h2 class="modal-title">Certificate Successfully Issued!</h2>
+        <p class="modal-subtitle">Your SSL/TLS certificate chain has been generated and validated by the CA.</p>
+
+        <div class="cert-details-grid">
+          <div class="detail-row">
+            <span class="detail-label">Primary Domain:</span>
+            <span id="modal-domain" class="detail-value font-mono font-bold">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">SANs:</span>
+            <span id="modal-sans" class="detail-value font-mono">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Certificate Authority:</span>
+            <span id="modal-ca" class="detail-value">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Issued At:</span>
+            <span id="modal-issued-at" class="detail-value">-</span>
+          </div>
+          <div class="detail-row" style="flex-direction: column; align-items: flex-start; gap: 4px; border-top: 1px solid var(--border-subtle); padding-top: 8px; margin-top: 4px;">
+            <span class="detail-label">Saved Location:</span>
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 8px;">
+              <span id="modal-output-dir" class="detail-value font-mono" style="font-size: 11px; word-break: break-all; color: var(--accent-cyan);">-</span>
+              <button type="button" id="btn-copy-modal-dir" class="btn-copy" title="Copy Directory Path">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="files-generated-box">
+          <div class="files-title">Generated Ready-to-Use Files (Plesk / cPanel / Nginx):</div>
+          <div class="file-tags-list">
+            <span class="file-tag file-tag-accent" title="Plesk Certificate">domain.crt / .cer</span>
+            <span class="file-tag file-tag-accent" title="Plesk Private Key">domain.key</span>
+            <span class="file-tag file-tag-accent" title="Plesk CA Certificate">domain-ca.crt</span>
+            <span class="file-tag">cert.pem</span>
+            <span class="file-tag">privkey.pem</span>
+            <span class="file-tag">fullchain.pem</span>
+            <span class="file-tag" style="border-color: var(--success-500); color: var(--success-500);">README_DEPLOYMENT.txt</span>
+          </div>
+        </div>
+
+
+        <div class="modal-footer">
+          <button type="button" id="btn-open-cert-dir" class="btn btn-primary btn-glow">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            </svg>
+            Open Certificate Folder
+          </button>
+          <button type="button" id="btn-close-success-modal" class="btn btn-secondary">
+            Close & Start New
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIVE DOMAINS & CERTIFICATES MODAL -->
+    <div id="modal-history" class="modal-overlay" style="display: none;">
+      <div class="modal-card modal-history-card">
+        <div class="modal-header-row">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="step-badge" style="background: var(--primary-500); width: 36px; height: 36px; font-size: 18px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md);">🌐</div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <h2 class="modal-title" style="margin: 0; font-size: 18px;">Active Domains & Certificates</h2>
+                <span id="history-count-badge" class="badge badge-primary">0 Total</span>
+              </div>
+              <p class="modal-subtitle" style="margin: 2px 0 0 0; text-align: left; font-size: 12px;">Track all issued SSL/TLS certificates, monitor expiration, remaining days, and manage disk files.</p>
+            </div>
+          </div>
+          <button type="button" id="btn-close-history" class="btn-icon" title="Close">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="history-toolbar">
+          <div class="history-search-wrapper">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" class="search-icon">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="history-search-input" class="text-input" placeholder="Search by domain, profile name, or CA..." />
+          </div>
+
+          <div class="history-filter-chips">
+            <button type="button" class="filter-chip active" data-filter="all">All</button>
+            <button type="button" class="filter-chip" data-filter="valid">Active (&gt;30d)</button>
+            <button type="button" class="filter-chip" data-filter="warning">Expiring (&le;30d)</button>
+            <button type="button" class="filter-chip" data-filter="expired">Expired</button>
+          </div>
+        </div>
+
+        <div class="history-table-container">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Domain & SANs</th>
+                <th>Profile</th>
+                <th>Issued Date</th>
+                <th>Expiration Date</th>
+                <th>Remaining</th>
+                <th>CA / Mode</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody id="history-table-body">
+              <tr>
+                <td colspan="7" class="text-center text-muted">Loading certificates...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- SAVE PROFILE MODAL -->
+    <div id="modal-save-profile" class="modal-overlay" style="display: none;">
+      <div class="modal-card" style="max-width: 440px;">
+        <div class="modal-header-row">
+          <h2 class="modal-title" style="font-size: 17px; text-align: left;">Save Configuration Profile</h2>
+          <button type="button" id="btn-close-save-profile" class="btn-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        
+        <p class="modal-subtitle" style="text-align: left;">Save your current CA settings, domains, and EAB credentials for quick access later.</p>
+
+        <form id="form-save-profile" class="form-grid" style="grid-template-columns: 1fr;">
+          <div class="form-group full-width">
+            <label for="profile-name-input">Profile Name</label>
+            <input type="text" id="profile-name-input" class="text-input" placeholder="e.g. My Company Production or example.com" required />
+            <span class="field-hint">A unique name to identify this configuration.</span>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
+            <button type="button" id="btn-cancel-save-profile" class="btn btn-ghost">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Profile</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- GLOBAL SETTINGS MODAL -->
+    <div id="modal-settings" class="modal-overlay" style="display: none;">
+      <div class="modal-card" style="max-width: 680px; max-height: 90vh; display: flex; flex-direction: column;">
+        <div class="modal-header-row">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="step-badge" style="background: var(--primary-color);">⚙️</div>
+            <div>
+              <h2 class="modal-title" style="font-size: 18px; margin: 0; text-align: left;">Global Default Settings</h2>
+              <p class="modal-subtitle" style="margin: 2px 0 0 0; text-align: left;">These defaults are automatically loaded for new profiles and app launches.</p>
+            </div>
+          </div>
+          <button type="button" id="btn-close-settings" class="btn-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <form id="form-settings" class="form-grid" style="overflow-y: auto; padding-right: 6px; margin-top: 15px;">
+          <!-- Default CA & Staging -->
+          <div class="form-group half-width">
+            <label for="set-default-ca">Default Certificate Authority</label>
+            <select id="set-default-ca" class="select-input">
+              <option value="GoogleTrustServices">Google Trust Services (Fast & Free)</option>
+              <option value="LetsEncrypt">Let's Encrypt (Universal Standard)</option>
+              <option value="ZeroSSL">ZeroSSL (90-Day Free)</option>
+            </select>
+          </div>
+
+          <div class="form-group half-width">
+            <label for="set-default-staging">Default Environment</label>
+            <select id="set-default-staging" class="select-input">
+              <option value="false">Production (Trusted Live SSL)</option>
+              <option value="true">Staging / Test Mode</option>
+            </select>
+          </div>
+
+          <!-- Default Email & Key Type -->
+          <div class="form-group half-width">
+            <label for="set-default-email">Default Account Email</label>
+            <input type="email" id="set-default-email" class="text-input" placeholder="admin@yourcompany.com" />
+          </div>
+
+          <div class="form-group half-width">
+            <label for="set-default-key-type">Default Private Key Algorithm</label>
+            <select id="set-default-key-type" class="select-input">
+              <option value="ECDSA_P256">ECDSA P-256 (Fast ECC - Recommended)</option>
+              <option value="ECDSA_P384">ECDSA P-384 (High Security ECC)</option>
+              <option value="RSA_2048">RSA 2048-bit (Legacy Standard)</option>
+              <option value="RSA_4096">RSA 4096-bit (Maximum Security)</option>
+            </select>
+          </div>
+
+          <!-- Default Server Preset -->
+          <div class="form-group half-width">
+            <label for="set-default-server-preset">Default Target Panel Preset</label>
+            <select id="set-default-server-preset" class="select-input">
+              <option value="all">All Panels (Organized: plesk/, cpanel/, nginx/)</option>
+              <option value="plesk">Plesk Panel (.crt, .key, -ca.crt)</option>
+              <option value="cpanel">cPanel / WHM (.crt, .key, ca_bundle)</option>
+              <option value="nginx">Nginx / Apache / Docker (.pem)</option>
+            </select>
+          </div>
+
+          <!-- Default Output Directory -->
+          <div class="form-group half-width">
+            <label for="set-default-output-dir">Default Output / Backup Directory</label>
+            <input type="text" id="set-default-output-dir" class="text-input" placeholder="Default: ./certificates/{domain}_{time}" />
+          </div>
+
+          <!-- Default DNS Automation -->
+          <div class="form-group half-width">
+            <label for="set-default-dns-provider">Default DNS Automation</label>
+            <select id="set-default-dns-provider" class="select-input">
+              <option value="manual">Manual (Enter TXT records by hand)</option>
+              <option value="plesk">Plesk REST API</option>
+              <option value="cloudflare">Cloudflare DNS API</option>
+              <option value="hetzner">Hetzner DNS API</option>
+              <option value="digitalocean">DigitalOcean DNS API</option>
+              <option value="webhook">Custom Webhook / Generic API</option>
+            </select>
+          </div>
+
+          <div class="form-group half-width">
+            <label for="set-default-dns-token">Default DNS API Key / Token</label>
+            <input type="password" id="set-default-dns-token" class="text-input font-mono" placeholder="API Key / Token..." />
+          </div>
+
+          <div class="form-group full-width">
+            <label for="set-default-dns-server-url">Default Plesk / Webhook Server URL</label>
+            <input type="text" id="set-default-dns-server-url" class="text-input font-mono" placeholder="https://panel.yourdomain.com:8443 or Webhook URL" />
+          </div>
+
+          <!-- Default Auto-Deploy -->
+          <div class="form-group half-width">
+            <label for="set-default-deploy-target">Default Auto-Deploy Target</label>
+            <select id="set-default-deploy-target" class="select-input">
+              <option value="none">None (Download only)</option>
+              <option value="local_nginx">Local Nginx Server</option>
+              <option value="local_apache">Local Apache Server</option>
+              <option value="local_plesk">Local Plesk Panel</option>
+              <option value="local_custom">Custom Local Path & Hook</option>
+              <option value="remote_ssh">Remote SSH / SFTP</option>
+            </select>
+          </div>
+
+          <div class="form-group half-width">
+            <label for="set-default-deploy-hook">Default Post-Deploy Hook Command</label>
+            <input type="text" id="set-default-deploy-hook" class="text-input font-mono" placeholder="systemctl reload nginx" />
+          </div>
+
+          <!-- Theme Preference -->
+          <div class="form-group full-width">
+            <label for="set-theme-mode">Interface Theme Mode</label>
+            <select id="set-theme-mode" class="select-input">
+              <option value="dark">🌙 Dark Theme (Recommended - Modern OLED)</option>
+              <option value="light">☀️ Light Theme (Clean Crisp Minimal)</option>
+            </select>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+            <button type="button" id="btn-reset-factory-settings" class="btn btn-ghost text-muted btn-sm">Restore Factory Defaults</button>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" id="btn-cancel-settings" class="btn btn-ghost">Cancel</button>
+              <button type="submit" class="btn btn-primary btn-glow">Save Global Settings</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ABOUT MODAL -->
+    <div id="modal-about" class="modal-overlay" style="display: none;">
+      <div class="modal-card" style="max-width: 500px; text-align: center; position: relative;">
+        <button type="button" id="btn-close-about" class="btn-icon" style="position: absolute; right: 16px; top: 16px;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+
+        <div style="display: flex; justify-content: center; margin-bottom: 12px; margin-top: 6px;">
+          <div class="logo-badge" style="width: 60px; height: 60px; border-radius: 18px;">
+            <svg class="icon-shield" viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="m9 12 2 2 4-4"/>
+            </svg>
+          </div>
+        </div>
+
+        <h2 style="font-size: 22px; font-weight: 800; color: var(--text-primary); margin-bottom: 2px;">ACME.rc</h2>
+        <div style="font-size: 13.5px; font-weight: 600; color: var(--primary-500); margin-bottom: 6px;">ACME Relay Client</div>
+        <div style="margin-bottom: 14px;">
+          <span id="about-app-version" class="badge badge-primary" style="font-size: 12px; padding: 3px 10px;">v1.1.0</span>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px;">
+          Modern, automated ACME DNS-01 certificate management and zero-touch server auto-deployment engine built for privacy, speed, and multi-CA compliance.
+        </p>
+
+        <button type="button" id="btn-about-ok" class="btn btn-primary btn-glow" style="width: 100%;">Close</button>
+      </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="toast-container"></div>
+
+
+
+
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
