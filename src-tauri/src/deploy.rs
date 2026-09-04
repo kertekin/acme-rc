@@ -110,7 +110,7 @@ async fn run_elevated_copy(
     }
 
     if let Ok(out) = pk_cmd.output().await {
-        if out.status.success() || dest_dir.exists() {
+        if out.status.success() {
             return Ok(format!(
                 "Successfully deployed certificates to '{}' (elevated with pkexec)",
                 dest_dir_str
@@ -139,7 +139,7 @@ async fn run_elevated_copy(
                         let _ = stdin.write_all(format!("{}\n", password).as_bytes()).await;
                     }
                     if let Ok(sudo_out) = sudo_proc.wait_with_output().await {
-                        if sudo_out.status.success() || dest_dir.exists() {
+                        if sudo_out.status.success() {
                             return Ok(format!(
                                 "Successfully deployed certificates to '{}' (elevated with sudo/kdialog)",
                                 dest_dir_str
@@ -172,7 +172,7 @@ async fn run_elevated_copy(
                         let _ = stdin.write_all(format!("{}\n", password).as_bytes()).await;
                     }
                     if let Ok(sudo_out) = sudo_proc.wait_with_output().await {
-                        if sudo_out.status.success() || dest_dir.exists() {
+                        if sudo_out.status.success() {
                             return Ok(format!(
                                 "Successfully deployed certificates to '{}' (elevated with sudo/zenity)",
                                 dest_dir_str
@@ -182,14 +182,6 @@ async fn run_elevated_copy(
                 }
             }
         }
-    }
-
-    // Double check if destination directory now exists on disk
-    if dest_dir.exists() {
-        return Ok(format!(
-            "Successfully deployed certificates to '{}' (elevated)",
-            dest_dir_str
-        ));
     }
 
     Err(format!(

@@ -98,6 +98,8 @@ pub async fn fetch_google_eab_from_sa(sa_json_str: &str, is_staging: bool) -> Re
         .map_err(|e| format!("Failed to sign OAuth2 JWT token: {}", e))?;
 
     let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(20))
+        .connect_timeout(std::time::Duration::from_secs(10))
         .build()
         .map_err(|e| format!("HTTP client initialization failed: {}", e))?;
 
@@ -182,6 +184,8 @@ pub async fn fetch_zerossl_eab_from_api_key(api_key: &str) -> Result<EabResult, 
     }
 
     let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(20))
+        .connect_timeout(std::time::Duration::from_secs(10))
         .build()
         .map_err(|e| format!("HTTP client initialization failed: {}", e))?;
 

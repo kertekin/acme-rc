@@ -101,6 +101,14 @@ pub fn extract_root_zone_name(host: &str) -> String {
     }
 }
 
+fn create_http_client() -> Result<reqwest::Client, String> {
+    reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(20))
+        .connect_timeout(std::time::Duration::from_secs(10))
+        .build()
+        .map_err(|e| format!("HTTP client initialization failed: {}", e))
+}
+
 async fn find_cloudflare_zone(
     client: &reqwest::Client,
     token: &str,
@@ -197,9 +205,7 @@ pub async fn create_cloudflare_txt_record(
         return Err("Cloudflare API Token cannot be empty".to_string());
     }
 
-    let client = reqwest::Client::builder()
-        .build()
-        .map_err(|e| format!("HTTP client error: {}", e))?;
+    let client = create_http_client()?;
 
     // Check for CNAME Delegation (e.g., _acme-challenge.domain.com -> _acme-challenge.delegated.com)
     let mut target_host = txt_host.to_string();
@@ -264,9 +270,7 @@ pub async fn delete_cloudflare_txt_record(
     zone_id: &str,
     record_id: &str,
 ) -> Result<(), String> {
-    let client = reqwest::Client::builder()
-        .build()
-        .map_err(|e| format!("HTTP client error: {}", e))?;
+    let client = create_http_client()?;
 
     let url = format!(
         "https://api.cloudflare.com/client/v4/zones/{}/dns_records/{}",
@@ -295,9 +299,7 @@ pub async fn create_hetzner_txt_record(
     txt_value: &str,
 ) -> Result<CreatedDnsRecord, String> {
     let token = api_token.trim();
-    let client = reqwest::Client::builder()
-        .build()
-        .map_err(|e| format!("HTTP client error: {}", e))?;
+    let client = create_http_client()?;
 
     let zone_name = extract_root_zone_name(txt_host);
 
@@ -365,9 +367,7 @@ pub async fn delete_hetzner_txt_record(
     api_token: &str,
     record_id: &str,
 ) -> Result<(), String> {
-    let client = reqwest::Client::builder()
-        .build()
-        .map_err(|e| format!("HTTP client error: {}", e))?;
+    let client = create_http_client()?;
 
     let url = format!("https://dns.hetzner.com/api/v1/records/{}", record_id);
     let resp = client
@@ -392,9 +392,7 @@ pub async fn create_digitalocean_txt_record(
     txt_value: &str,
 ) -> Result<CreatedDnsRecord, String> {
     let token = api_token.trim();
-    let client = reqwest::Client::builder()
-        .build()
-        .map_err(|e| format!("HTTP client error: {}", e))?;
+    let client = create_http_client()?;
 
     let domain = extract_root_zone_name(txt_host);
     let clean_host = txt_host.trim_end_matches('.');
@@ -442,9 +440,7 @@ pub async fn delete_digitalocean_txt_record(
     domain: &str,
     record_id: &str,
 ) -> Result<(), String> {
-    let client = reqwest::Client::builder()
-        .build()
-        .map_err(|e| format!("HTTP client error: {}", e))?;
+    let client = create_http_client()?;
 
     let url = format!(
         "https://api.digitalocean.com/v2/domains/{}/records/{}",
@@ -493,6 +489,8 @@ pub async fn create_plesk_txt_record(
     }
 
     let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(20))
+        .connect_timeout(std::time::Duration::from_secs(10))
         .danger_accept_invalid_certs(true) // Allow self-signed panel certs
         .build()
         .map_err(|e| format!("HTTP client error: {}", e))?;
@@ -577,6 +575,8 @@ pub async fn delete_plesk_txt_record(
     let key = api_key.trim();
 
     let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(20))
+        .connect_timeout(std::time::Duration::from_secs(10))
         .danger_accept_invalid_certs(true)
         .build()
         .map_err(|e| format!("HTTP client error: {}", e))?;
@@ -609,9 +609,7 @@ pub async fn create_custom_webhook_txt_record(
         return Err("Webhook Add URL cannot be empty".to_string());
     }
 
-    let client = reqwest::Client::builder()
-        .build()
-        .map_err(|e| format!("HTTP client error: {}", e))?;
+    let client = create_http_client()?;
 
     let zone_name = extract_root_zone_name(txt_host);
 
@@ -661,9 +659,7 @@ pub async fn delete_custom_webhook_txt_record(
         return Ok(()); // Optional deletion URL
     }
 
-    let client = reqwest::Client::builder()
-        .build()
-        .map_err(|e| format!("HTTP client error: {}", e))?;
+    let client = create_http_client()?;
 
     let zone_name = extract_root_zone_name(txt_host);
 

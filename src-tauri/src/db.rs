@@ -165,6 +165,7 @@ impl Database {
                 deploy_ssh_port INTEGER DEFAULT 22,
                 deploy_ssh_user TEXT,
                 deploy_ssh_key TEXT,
+                deploy_ssh_pass TEXT,
                 output_dir TEXT,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )",
